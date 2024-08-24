@@ -17,7 +17,7 @@ import json
 import requests
 import sys
 
-VERSION = "3.2.1"
+VERSION = "SR-0.1"
 
 def debug(message):
 	print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} - DEBUG: {message}')
