@@ -121,13 +121,13 @@ class DockerManager:
 	def __init__(self):
 		self.client = docker.from_env()
 
-	def list_containers(self, cmd=""):
-		cmd = cmd.split('@', 1)[0]
-		if cmd == "/run":
+	def list_containers(self, comando=""):
+		comando = comando.split('@', 1)[0]
+		if comando == "/run":
 			status = ['paused', 'exited', 'created', 'dead']
 			filters = {'status': status}
 			containers = self.client.containers.list(filters=filters)
-		elif cmd == "/stop" or cmd == "/restart":
+		elif comando == "/stop" or comando == "/restart":
 			status = ['running', 'restarting']
 			filters = {'status': status}
 			containers = self.client.containers.list(filters=filters)
@@ -297,7 +297,7 @@ class DockerManager:
 				container = client.containers.get(container_id)
 				container_attrs = container.attrs.get('Config', {})
 
-				container_command = container_attrs.get('Cmd', [])
+				container_command = container_attrs.get('comando', [])
 				container_environment = container_attrs.get('Env', [])
 				host_config = container.attrs.get('HostConfig', {})
 
@@ -662,16 +662,16 @@ class DockerScheduleMonitor:
 @bot.message_handler(commands=["start", "list", "run", "stop", "restart", "delete", "checkupdate", "changetag", "logs", "logfile", "compose", "mute", "schedule", "info", "version", "donate", "prune"])
 def command_controller(message):
 	userId = message.from_user.id
-	cmd = message.text.split(' ', 1)[0]
+	comando = message.text.split(' ', 1)[0]
 	messageId = message.id
 	container_id = None
-	if not cmd in ('/mute', f'/mute@{bot.get_me().username}'
+	if not comando in ('/mute', f'/mute@{bot.get_me().username}'
 					,'/schedule', f'/schedule@{bot.get_me().username}'):
 		container_name = " ".join(message.text.split()[1:])
 		if container_name:
 			container_id = get_container_id_by_name(container_name, debugging=True)
 
-	debug(f"COMMAND: {cmd}")
+	debug(f"COMMAND: {comando}")
 	debug(f"USER: {userId}")
 	debug(f"CHAT/GROUP: {message.chat.id}")
 	message_thread_id = message.message_thread_id
@@ -687,38 +687,38 @@ def command_controller(message):
 		send_message(chat_id=userId, message=get_text("user_not_admin"))
 		return
 	
-	if cmd not in ('/start', f'/start@{bot.get_me().username}'):
+	if comando not in ('/start', f'/start@{bot.get_me().username}'):
 		delete_message(messageId)
 
 	# Listar contenedores
-	if cmd in ('/start', f'/start@{bot.get_me().username}'):
+	if comando in ('/start', f'/start@{bot.get_me().username}'):
 		texto_inicial = get_text("menu")
 		send_message(message=texto_inicial)
-	elif cmd in ('/list', f'/list@{bot.get_me().username}'):
+	elif comando in ('/list', f'/list@{bot.get_me().username}'):
 		markup = InlineKeyboardMarkup(row_width = 1)
 		markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
-		containers = docker_manager.list_containers(cmd=cmd)
+		containers = docker_manager.list_containers(comando=comando)
 		send_message(message=display_containers(containers), reply_markup=markup)
-	elif cmd in ('/run', f'/run@{bot.get_me().username}'):
+	elif comando in ('/run', f'/run@{bot.get_me().username}'):
 		if container_id:
 			run(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_status_emoji(container.status, container.name)} {container.name}', callback_data=f'run|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("start_a_container"), reply_markup=markup)
-	elif cmd in ('/stop', f'/stop@{bot.get_me().username}'):
+	elif comando in ('/stop', f'/stop@{bot.get_me().username}'):
 		if container_id:
 			stop(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				if CONTAINER_NAME == container.name:
 					continue
@@ -727,13 +727,13 @@ def command_controller(message):
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("stop_a_container"), reply_markup=markup)
-	elif cmd in ('/restart', f'/restart@{bot.get_me().username}'):
+	elif comando in ('/restart', f'/restart@{bot.get_me().username}'):
 		if container_id:
 			restart(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				if CONTAINER_NAME == container.name:
 					continue
@@ -742,54 +742,54 @@ def command_controller(message):
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("restart_a_container"), reply_markup=markup)
-	elif cmd in ('/logs', f'/logs@{bot.get_me().username}'):
+	elif comando in ('/logs', f'/logs@{bot.get_me().username}'):
 		if container_id:
 			logs(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_status_emoji(container.status, container.name)} {container.name}', callback_data=f'logs|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("show_logs"), reply_markup=markup)
-	elif cmd in ('/logfile', f'/logfile@{bot.get_me().username}'):
+	elif comando in ('/logfile', f'/logfile@{bot.get_me().username}'):
 		if container_id:
 			log_file(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_status_emoji(container.status, container.name)} {container.name}', callback_data=f'logfile|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("show_logsfile"), reply_markup=markup)
-	elif cmd in ('/compose', f'/compose@{bot.get_me().username}'):
+	elif comando in ('/compose', f'/compose@{bot.get_me().username}'):
 		if container_id:
 			compose(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_status_emoji(container.status, container.name)} {container.name}', callback_data=f'compose|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("show_compose"), reply_markup=markup)
-	elif cmd in ('/mute', f'/mute@{bot.get_me().username}'):
+	elif comando in ('/mute', f'/mute@{bot.get_me().username}'):
 		try:
 			minutes = int(message.text.split()[1])
 		except (IndexError, ValueError):
 			send_message(message=get_text("error_use_mute_command"))
 			return
 		mute(minutes)
-	elif cmd in ('/schedule', f'/schedule@{bot.get_me().username}'):
-		full_schedule = message.text.replace(cmd, '').replace('  ', ' ').lstrip()
+	elif comando in ('/schedule', f'/schedule@{bot.get_me().username}'):
+		full_schedule = message.text.replace(comando, '').replace('  ', ' ').lstrip()
 		if not full_schedule or full_schedule == "": # CHECK AND DELETE
 			markup = InlineKeyboardMarkup(row_width = 1)
 			empty = False
@@ -831,59 +831,59 @@ def command_controller(message):
 			with open(FULL_SCHEDULE_PATH, "a") as file:
 				file.write(f'{schedule} {command} {name}\n')
 			send_message(message=get_text("schedule_saved", f'{schedule} {command} {name}'))
-	elif cmd in ('/info', f'/info@{bot.get_me().username}'):
+	elif comando in ('/info', f'/info@{bot.get_me().username}'):
 		if container_id:
 			info(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_status_emoji(container.status, container.name)} {container.name}', callback_data=f'info|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("show_info"), reply_markup=markup)
-	elif cmd in ('/delete', f'/delete@{bot.get_me().username}'):
+	elif comando in ('/delete', f'/delete@{bot.get_me().username}'):
 		if container_id:
 			confirm_delete(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_status_emoji(container.status, container.name)} {container.name}', callback_data=f'confirmDelete|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("delete_container"), reply_markup=markup)
-	elif cmd in ('/checkupdate', f'/checkupdate@{bot.get_me().username}'):
+	elif comando in ('/checkupdate', f'/checkupdate@{bot.get_me().username}'):
 		if container_id:
 			docker_manager.force_check_update(container_id)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_update_emoji(container.name)} {container.name}', callback_data=f'checkUpdate|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("update_container"), reply_markup=markup)
-	elif cmd in ('/changetag', f'/changetag@{bot.get_me().username}'):
+	elif comando in ('/changetag', f'/changetag@{bot.get_me().username}'):
 		if container_id:
 			change_tag_container(container_id, container_name)
 		else:
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
-			containers = docker_manager.list_containers(cmd=cmd)
+			containers = docker_manager.list_containers(comando=comando)
 			for container in containers:
 				botones.append(InlineKeyboardButton(f'{get_status_emoji(container.status, container.name)} {container.name}', callback_data=f'changeTagContainer|{container.id[:CONTAINER_ID_LENGTH]}|{container.name}'))
 
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("change_tag_container"), reply_markup=markup)
-	elif cmd in ('/prune', f'/prune@{bot.get_me().username}'):
+	elif comando in ('/prune', f'/prune@{bot.get_me().username}'):
 			markup = InlineKeyboardMarkup(row_width = BUTTON_COLUMNS)
 			botones = []
 			botones.append(InlineKeyboardButton(get_text("button_containers"), callback_data=f'prune|confirmPruneContainers'))
@@ -893,12 +893,12 @@ def command_controller(message):
 			markup.add(*botones)
 			markup.add(InlineKeyboardButton(get_text("button_close"), callback_data="cerrar"))
 			send_message(message=get_text("prune_system"), reply_markup=markup)
-	elif cmd in ('/version', f'/version@{bot.get_me().username}'):
+	elif comando in ('/version', f'/version@{bot.get_me().username}'):
 		x = send_message(message=get_text("version", VERSION))
 		time.sleep(15)
 		delete_message(x.message_id)
 
-	elif cmd in ('/donate', f'/donate@{bot.get_me().username}'):
+	elif comando in ('/donate', f'/donate@{bot.get_me().username}'):
 		x = send_message(message=get_text("donate"))
 		time.sleep(45)
 		delete_message(x.message_id)
@@ -921,91 +921,91 @@ def button_controller(call):
 	call_data_parts = call.data.split("|")
 	if len(call_data_parts) == 4:
 		if call_data_parts[0] == "deleteSchedule":
-			cmd, schedule, action, containerName = call_data_parts
+			comando, schedule, action, containerName = call_data_parts
 		else:
-			cmd, containerId, containerName, tag = call_data_parts
+			comando, containerId, containerName, tag = call_data_parts
 	elif len(call_data_parts) == 3:
-		cmd, containerId, containerName = call_data_parts
+		comando, containerId, containerName = call_data_parts
 		tag = None
 	elif len(call_data_parts) == 2:
-		cmd, action = call_data_parts
+		comando, action = call_data_parts
 
 	# RUN
-	if cmd == "run":
+	if comando == "run":
 		run(containerId, containerName)
 
 	# STOP
-	elif cmd == "stop":
+	elif comando == "stop":
 		stop(containerId, containerName)
 
 	# RESTART
-	elif cmd == "restart":
+	elif comando == "restart":
 		restart(containerId, containerName)
 
 	# LOGS
-	elif cmd == "logs":
+	elif comando == "logs":
 		logs(containerId, containerName)
 
 	# LOGS EN FICHERO
-	elif cmd == "logfile":
+	elif comando == "logfile":
 		log_file(containerId, containerName)
 
 	# COMPOSE
-	elif cmd == "compose":
+	elif comando == "compose":
 		compose(containerId, containerName)
 
 	# INFO
-	elif cmd == "info":
+	elif comando == "info":
 		info(containerId, containerName)
 
 	# CONFIRM UPDATE
-	elif cmd == "confirmUpdate":
+	elif comando == "confirmUpdate":
 		confirm_update(containerId, containerName)
 
 	# CHECK UPDATE
-	elif cmd == "checkUpdate":
+	elif comando == "checkUpdate":
 		docker_manager.force_check_update(containerId)
 
 	# UPDATE
-	elif cmd == "update":
+	elif comando == "update":
 		x = send_message(message=get_text("updating", containerName))
 		result = docker_manager.update(container_id=containerId, container_name=containerName, message=x, bot=bot)
 		delete_message(x.message_id)
 		send_message(message=result)
 
 	# CONFIRM DELETE
-	elif cmd == "confirmDelete":
+	elif comando == "confirmDelete":
 		confirm_delete(containerId, containerName)
 
 	# DELETE
-	elif cmd == "delete":
+	elif comando == "delete":
 		x = send_message(message=get_text("deleting", containerName))
 		result = docker_manager.delete(container_id=containerId, container_name=containerName)
 		delete_message(x.message_id)
 		send_message(message=result)
 
 	# CHANGE_TAG_CONTAINER
-	elif cmd == "changeTagContainer":
+	elif comando == "changeTagContainer":
 		change_tag_container(containerId, containerName)
 
 	# CHANGE_TAG_CONTAINER
-	elif cmd == "confirmChangeTag":
+	elif comando == "confirmChangeTag":
 		confirm_change_tag(containerId, containerName, tag)
 
 	# CHANGE_TAG
-	elif cmd == "changeTag":
+	elif comando == "changeTag":
 		x = send_message(message=get_text("updating", containerName))
 		result = docker_manager.update(container_id=containerId, container_name=containerName, message=x, bot=bot, tag=tag)
 		delete_message(x.message_id)
 		send_message(message=result)
 
 	# DELETE SCHEDULE
-	elif cmd == "deleteSchedule":
+	elif comando == "deleteSchedule":
 		delete_line_from_file(FULL_SCHEDULE_PATH, f'{schedule} {action} {containerName}')
 		send_message(message=get_text("deleted_schedule", f'{schedule} {action} {containerName}'))
 
 	# PRUNE
-	elif cmd == "prune":
+	elif comando == "prune":
 		# PRUNE CONTAINERS
 		if action == "confirmPruneContainers":
 			confirm_prune_containers()
@@ -1300,7 +1300,7 @@ def read_cache_item(image_with_tag, container_name):
 
 def generate_docker_compose(container):
 	container_attrs = container.attrs['Config']
-	container_command = container_attrs.get('Cmd', None)
+	container_command = container_attrs.get('comando', None)
 	container_environment = container_attrs.get('Env', None)
 	container_volumes = container.attrs['HostConfig'].get('Binds', None)
 	container_network_mode = container.attrs['HostConfig'].get('NetworkMode', None)
