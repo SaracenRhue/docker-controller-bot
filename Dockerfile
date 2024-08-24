@@ -1,5 +1,10 @@
 FROM python:3.11-alpine3.20
 
+WORKDIR /app
+COPY . .
+RUN apk update && apk add tzdata
+RUN pip install -r requirements.txt
+
 ENV TELEGRAM_TOKEN=abc
 ENV TELEGRAM_ADMIN=abc
 ENV TELEGRAM_GROUP=abc
@@ -12,10 +17,5 @@ ENV BUTTON_COLUMNS=2
 ENV LANGUAGE=EN
 ENV EXTENDED_MESSAGES=0
 ENV TZ=UTC
-
-WORKDIR /app
-COPY . .
-RUN apk update && apk add tzdata
-RUN pip install -r requirements.txt
 
 ENTRYPOINT ["python", "docker-controller-bot.py"]
