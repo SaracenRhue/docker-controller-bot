@@ -1,4 +1,5 @@
-# docker-controller-bot
+# Docker Controller Bot
+
 [![](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/dgongut/docker-controller-bot)
 [![](https://badgen.net/badge/icon/docker?icon=docker&label)](https://hub.docker.com/r/dgongut/docker-controller-bot)
 [![](https://badgen.net/badge/icon/telegram?icon=telegram&label)](https://t.me/dockercontrollerbotnews)
@@ -11,46 +12,46 @@
 ![Github last-commit](https://badgen.net/github/license/dgongut/docker-controller-bot)
 ![alt text](https://github.com/dgongut/pictures/blob/main/Docker-Controller-Bot/mockup.png)
 
-Lleva el control de tus contenedores docker desde un único lugar.
+Manage your Docker containers from a single place.
 
-- ✅ Listar contenedores
-- ✅ Arrancar, parar y eliminar contenedores
-- ✅ Obtener los logs tanto de manera directa como a través de fichero
-- ✅ Extraer el docker-compose de tus contenedores
-- ✅ Notificaciones cuando un contenedor se cae o se inicia
-- ✅ Notificaciones cuando un contenedor tiene una actualización pendiente
-- ✅ Actualizaciones de los contenedores
-- ✅ Cambiar el tag (rollback o actualización)
-- ✅ Limpia el sistema, eliminado contenedores, imagenes y otros objetos no utilizados.
-- ✅ Soporte de idiomas (Spanish, English, Dutch, German)
+- ✅ List containers
+- ✅ Start, stop, and remove containers
+- ✅ Obtain logs both directly and through files
+- ✅ Extract the docker-compose file for your containers
+- ✅ Notifications when a container stops or starts
+- ✅ Notifications when a container has a pending update
+- ✅ Update containers
+- ✅ Change the tag (rollback or update)
+- ✅ Clean the system by removing unused containers, images, and other objects
+- ✅ Language support (Spanish, English, Dutch, German)
 
-¿Lo buscas en [![](https://badgen.net/badge/icon/docker?icon=docker&label)](https://hub.docker.com/r/dgongut/docker-controller-bot)?
+Looking for it on [![](https://badgen.net/badge/icon/docker?icon=docker&label)](https://hub.docker.com/r/dgongut/docker-controller-bot)?
 
-**NUEVO** Canal de novedades en [![](https://badgen.net/badge/icon/telegram?icon=telegram&label)](https://t.me/dockercontrollerbotnews)
+**NEW** News channel on [![](https://badgen.net/badge/icon/telegram?icon=telegram&label)](https://t.me/dockercontrollerbotnews)
 
-🖼️ Si deseas establecerle el icono al bot de telegram, te dejo [aquí](https://raw.githubusercontent.com/dgongut/pictures/main/Docker-Controller-Bot/Docker-Controller-Bot.png) el icono en alta resolución. Solo tienes que descargarlo y mandárselo al @BotFather en la opción de BotPic.
+🖼️ If you want to set an icon for the Telegram bot, you can download a high-resolution icon [here](https://raw.githubusercontent.com/dgongut/pictures/main/Docker-Controller-Bot/Docker-Controller-Bot.png). Just download it and send it to @BotFather using the BotPic option.
 
-## Configuración en config.py
+## Configuration in config.py
 
-| CLAVE  | OBLIGATORIO | VALOR |
+| KEY  | REQUIRED | VALUE |
 |:------------- |:---------------:| :-------------|
-|TELEGRAM_TOKEN |✅| Token del bot |
-|TELEGRAM_ADMIN |✅| ChatId del administrador (se puede obtener hablándole al bot Rose escribiendo /id). Admite múltiples administradores separados por comas. Por ejemplo 12345,54431,55944 |
-|TELEGRAM_GROUP |❌| ChatId del grupo. Si este bot va a formar parte de un grupo, es necesario especificar el chatId de dicho grupo. Es necesario que el bot sea administrador del grupo |
-|TELEGRAM_THREAD |❌| Thread del tema dentro de un supergrupo; valor numérico (2,3,4..). Por defecto 1. Se utiliza en conjunción con la variable TELEGRAM_GROUP |
-|TELEGRAM_NOTIFICATION_CHANNEL |❌| Canal donde se publicarán exclusivamente los cambios de estado de los contenedores |
-|CONTAINER_NAME |✅| Nombre del contenedor, lo que se le ponga en container_name en el docker-compose ha de ir aquí también |
-|TZ |✅| Timezone (Por ejemplo Europe/Madrid) |
-|CHECK_UPDATES |❌| Si se desea que compruebe actualizaciones. 0 no - 1 sí. Por defecto 1|
-|CHECK_UPDATE_EVERY_HOURS |❌| Tiempo de espera en horas entre chequeo de actualizaciones (4 horas por defecto) | 
-|BUTTON_COLUMNS |❌| Numero de columnas de botones en las listas de contenedores (2 columnas por defecto) | 
-|LANGUAGE |❌| Idioma, puede ser ES / EN / NL / DE. Por defecto es ES (Spanish) | 
-|EXTENDED_MESSAGES |❌| Si se desea que muestre más mensajes de información. 0 no - 1 sí. Por defecto 0 | 
+|TELEGRAM_TOKEN |✅| Bot token |
+|TELEGRAM_ADMIN |✅| Admin ChatId (you can obtain it by messaging the bot Rose and typing /id). Supports multiple admins separated by commas. For example 12345,54431,55944 |
+|TELEGRAM_GROUP |❌| Group ChatId. If this bot is to be part of a group, you need to specify the ChatId of that group. The bot must be an admin of the group |
+|TELEGRAM_THREAD |❌| Thread number within a supergroup; numeric value (2,3,4..). Default is 1. Used in conjunction with the TELEGRAM_GROUP variable |
+|TELEGRAM_NOTIFICATION_CHANNEL |❌| Channel where container status changes will be exclusively published |
+|CONTAINER_NAME |✅| Container name, what is set in container_name in the docker-compose file should also go here |
+|TZ |✅| Timezone (e.g., Europe/Madrid) |
+|CHECK_UPDATES |❌| If you want it to check for updates. 0 no - 1 yes. Default is 1 |
+|CHECK_UPDATE_EVERY_HOURS |❌| Wait time in hours between update checks (default 4 hours) | 
+|BUTTON_COLUMNS |❌| Number of button columns in the container lists (default 2 columns) | 
+|LANGUAGE |❌| Language, can be ES / EN / NL / DE. Default is ES (Spanish) | 
+|EXTENDED_MESSAGES |❌| If you want it to show more detailed information messages. 0 no - 1 yes. Default is 0 | 
 
-### Anotaciones
-Será necesario mapear un volumen para almacenar lo que el bot escribe en /app/schedule
+### Notes
+A volume mapping is required to store what the bot writes in /app/schedule
 
-### Ejemplo de Docker-Compose para su ejecución normal
+### Example Docker-Compose for Normal Execution
 
 ```yaml
 version: '3.3'
@@ -70,8 +71,8 @@ services:
             #- LANGUAGE=ES
             #- EXTENDED_MESSAGES=0
         volumes:
-            - /var/run/docker.sock:/var/run/docker.sock # NO CAMBIAR
-            - /ruta/para/guardar/las/programaciones:/app/schedule # CAMBIAR LA PARTE IZQUIERDA
+            - /var/run/docker.sock:/var/run/docker.sock # DO NOT CHANGE
+            - /path/to/save/schedules:/app/schedule # CHANGE LEFT SIDE
         image: dgongut/docker-controller-bot:latest
         container_name: docker-controller-bot
         restart: always
@@ -79,25 +80,24 @@ services:
         tty: true
 ```
 
-### Funciones Extra mediante Labels/Etiquetas en otros contenedores
+### Extra Functions via Labels on Other Containers
 
-- Añadiendo la etiqueta `DCB-Ignore-Check-Updates` a un contenedor, no se comprobarán actualizaciones para él.
-- Añadiendo la etiqueta `DCB-Auto-Update` a un contenedor, se actualizará automáticamente sin preguntar.
+- By adding the label `DCB-Ignore-Check-Updates` to a container, updates for it will not be checked.
+- By adding the label `DCB-Auto-Update` to a container, it will automatically update without asking.
 
-### Agradecimientos
+### Acknowledgments
 
-Traducción al neerlandés: [ManCaveMedia](https://github.com/ManCaveMedia)
-Traducción al alemán: [shedowe19](https://github.com/shedowe19)
+Dutch translation: [ManCaveMedia](https://github.com/ManCaveMedia)  
+German translation: [shedowe19](https://github.com/shedowe19)
 
 ---
 
-## Solo para desarrolladores - Ejecución con código local
+## For Developers Only - Running with Local Code
 
+To run it locally and test new code changes, rename the `.env-example` file to `.env` with the necessary values for execution.
+You must set a correct `TELEGRAM_TOKEN` and `TELEGRAM_ADMIN`, different from the normal execution ones.
 
-Para su ejecución en local y probar nuevos cambios de código, se necesita renombrar el fichero `.env-example` a `.env` con los valores necesarios para su ejecución.
-Es necesario establecer un `TELEGRAM_TOKEN` y un `TELEGRAM_ADMIN` correctos y diferentes al de la ejecución normal.
-
-La estructura de carpetas debe quedar:
+The folder structure should be:
 
 ```
 docker-controller-bot/
@@ -114,6 +114,6 @@ docker-controller-bot/
         └── nl.json
 ```
 
-Para levantarlo habría que ejecutar en esa ruta: `docker compose up -d`
+To start it, run `docker compose up -d` in that directory.
 
-Para detenerlo y probar nuevos cambios habría que ejecutar en esa ruta: `docker compose down --rmi`
+To stop it and test new changes, run `docker compose down --rmi`.

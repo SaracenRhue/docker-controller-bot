@@ -56,7 +56,7 @@ def get_text(key, *args):
 
 	return translated_text
 
-# Comprobación inicial de variables
+
 if "abc" == TELEGRAM_TOKEN:
 	error(get_text("error_bot_token"))
 	sys.exit(1)
@@ -113,7 +113,7 @@ for key in DIR:
 if not os.path.exists(SCHEDULE_PATH):
 	os.makedirs(SCHEDULE_PATH)
 
-# Instanciamos el bot
+# initiate bot instance
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 mute_until = 0
 
